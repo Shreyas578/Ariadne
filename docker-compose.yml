@@ -1,0 +1,17 @@
+services:
+  # FalkorDB Graph Database Container (Optional local alternative to FalkorDB Cloud)
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: ariadne-falkordb
+    ports:
+      - "6379:6379" # Database port
+      - "3000:3000" # FalkorDB visual web browser
+    volumes:
+      - falkordb_data:/var/lib/falkordb/data
+    restart: unless-stopped
+    environment:
+      - FALKORDB_ARGS=--save 60 1
+
+volumes:
+  falkordb_data:
+    driver: local
