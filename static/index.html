@@ -16,16 +16,10 @@
     <!-- Top Navigation Header -->
     <header class="app-header">
       <div class="brand-group">
-        <div class="logo-icon">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="9"/>
-            <path d="M12 3a9 9 0 0 0 0 18"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </div>
+        <img src="/static/logo.jpg" alt="Ariadne Brand Logo" class="brand-logo-img" style="width: 44px; height: 44px; border-radius: 10px; border: 1.5px solid rgba(6, 182, 212, 0.5); box-shadow: 0 0 16px rgba(6, 182, 212, 0.4); object-fit: cover;" />
         <div class="brand-titles">
           <h1>ARIADNE</h1>
-          <span class="subtitle">Stigmergic Multi-Agent AML Forensics • FalkorDB Native</span>
+          <span class="subtitle">Autonomous Multi-Agent Financial Crimes Intelligence • FalkorDB Native</span>
         </div>
       </div>
 
@@ -63,9 +57,31 @@
               <span class="btn-icon">🛡️</span>
               <span>3. Dispatch Investigator</span>
             </button>
+            <button id="btnOpenCustomModal" class="btn btn-secondary" style="background: rgba(14, 165, 233, 0.15); border-color: rgba(14, 165, 233, 0.4); color: #38bdf8;">
+              <span class="btn-icon">📂</span>
+              <span>+ Ingest Custom Case</span>
+            </button>
           </div>
 
-          <div class="agent-model-select">
+          <!-- Adversarial Stress Test Box for Judges -->
+          <div class="adversarial-box" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--card-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 0.76rem; font-weight: 700; color: #f43f5e; text-transform: uppercase;">⚔️ Adversarial Stress Test</span>
+              <span class="badge-tag" style="background: rgba(244, 63, 94, 0.2); color: #fb7185; border-color: #f43f5e;">Judge Live Demo</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <select id="adversarialTopologySelect" class="form-select" style="font-size: 0.78rem; padding: 6px 8px;">
+                <option value="nested_loop">5-Hop Nested Loop</option>
+                <option value="scatter_gather">Scatter-Gather Mules</option>
+                <option value="sybil_ring">Compromised Sybil Device</option>
+              </select>
+              <button id="btnInjectAdversarial" class="btn" style="background: #e11d48; color: #fff; padding: 6px 12px; font-size: 0.78rem; white-space: nowrap;">
+                Inject Ring
+              </button>
+            </div>
+          </div>
+
+          <div class="agent-model-select" style="margin-top: 12px;">
             <label for="modelSelect">Investigator Model Tier:</label>
             <select id="modelSelect" class="form-select">
               <option value="llama-3.3-70b">Groq Llama-3.3-70B-Versatile (Primary)</option>
@@ -144,6 +160,7 @@
               <div class="detectives-assembly">
                 <!-- Detective 1: Llama-3.3-70B (The Grizzled Chief) -->
                 <div class="detective-character char-body-lead" id="char_llama_70b" data-role="Chief Lead">
+                  <span class="emotion-indicator" id="emo_llama_70b">😠</span>
                   <div class="char-bubble">Awaiting dispatch.</div>
                   <div class="char-figure">
                     <svg viewBox="0 0 120 140" width="105" height="122" class="detective-svg">
@@ -195,6 +212,7 @@
 
                 <!-- Detective 2: Mixtral-8x7B (The Sharp Defense Attorney) -->
                 <div class="detective-character char-body-lawyer" id="char_mixtral_8x7b" data-role="Defense Advocate">
+                  <span class="emotion-indicator" id="emo_mixtral_8x7b">🤔</span>
                   <div class="char-bubble">Reviewing benign explanations.</div>
                   <div class="char-figure">
                     <svg viewBox="0 0 120 140" width="105" height="122" class="detective-svg">
@@ -235,6 +253,7 @@
 
                 <!-- Detective 3: DeepSeek-R1-70B (The Cyber Quant) -->
                 <div class="detective-character char-body-quant" id="char_deepseek_r1" data-role="Quant Analyst">
+                  <span class="emotion-indicator" id="emo_deepseek_r1">⚡</span>
                   <div class="char-bubble">Calculating transaction deltas.</div>
                   <div class="char-figure">
                     <svg viewBox="0 0 120 140" width="105" height="122" class="detective-svg">
@@ -275,6 +294,7 @@
 
                 <!-- Detective 4: Qwen-2.5-72B (The Typology Auditor) -->
                 <div class="detective-character char-body-auditor" id="char_qwen_72b" data-role="Consensus Auditor">
+                  <span class="emotion-indicator" id="emo_qwen_72b">🚨</span>
                   <div class="char-bubble">Cross-checking FATF typology.</div>
                   <div class="char-figure">
                     <svg viewBox="0 0 120 140" width="105" height="122" class="detective-svg">
@@ -304,6 +324,7 @@
 
                 <!-- Detective 5: Llama-3.1-8B (The Field Operative) -->
                 <div class="detective-character char-body-field" id="char_llama_8b" data-role="Playbook Operator">
+                  <span class="emotion-indicator" id="emo_llama_8b">🎯</span>
                   <div class="char-bubble">Playbook indexed. Ready.</div>
                   <div class="char-figure">
                     <svg viewBox="0 0 120 140" width="105" height="122" class="detective-svg">
@@ -350,7 +371,29 @@
 
         <!-- Tab 1: Graph Visualization -->
         <div class="tab-pane" id="graphView">
-          <div class="graph-container-wrapper">
+          <div class="graph-container-wrapper" id="graphContainerWrapper">
+            <!-- Graph Floating Action Toolbar -->
+            <div class="graph-toolbar" style="position: absolute; top: 14px; right: 14px; z-index: 20; display: flex; gap: 8px;">
+              <button id="btnPlaySimulation" class="btn" style="background: rgba(14, 165, 233, 0.9); color: #fff; font-size: 0.78rem; padding: 7px 14px; border-radius: 6px; font-weight: 700; box-shadow: 0 4px 14px rgba(14, 165, 233, 0.4); backdrop-filter: blur(8px);">
+                ▶ Play Flow Simulation
+              </button>
+              <button id="btnResetSimulation" class="btn btn-secondary" style="font-size: 0.78rem; padding: 7px 12px; display: none;">
+                ↺ Reset View
+              </button>
+              <button id="btnToggleFullscreen" class="btn btn-secondary" style="font-size: 0.78rem; padding: 7px 12px; background: rgba(15, 23, 42, 0.85); color: #fff;">
+                ⛶ Full Screen
+              </button>
+            </div>
+
+            <!-- Interactive Node & Edge Inspector Floating Overlay -->
+            <div class="element-inspector-overlay" id="elementInspector" style="display: none; position: absolute; top: 14px; left: 14px; z-index: 25; width: 280px; background: rgba(15, 23, 42, 0.92); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 14px; backdrop-filter: blur(12px); box-shadow: 0 8px 30px rgba(0,0,0,0.7); animation: fadeIn 0.2s ease;">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px;">
+                <span id="inspectType" style="font-size: 0.72rem; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase;">Node Inspector</span>
+                <button id="btnCloseInspector" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1rem; line-height: 1;">×</button>
+              </div>
+              <div id="inspectContent" style="font-size: 0.82rem; line-height: 1.5; color: #e2e8f0;"></div>
+            </div>
+
             <div id="graphNetwork" class="graph-canvas"></div>
             <div class="graph-legend">
               <div class="legend-item"><span class="node-color node-clean"></span> Clean Account</div>
@@ -421,12 +464,115 @@
             <h3>Federated Pattern Sharing (<code>shared_patterns</code> Graph)</h3>
             <p>Structural motif fingerprints published cross-institutionally with ZERO PII (no account numbers, names, or dollar amounts).</p>
           </div>
+
+          <!-- Cross-Tenant Collaborative Simulation -->
+          <div class="panel-card" style="margin-bottom: 20px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(14, 165, 233, 0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <div>
+                <h4 style="color: #38bdf8; margin: 0; font-size: 0.95rem;">🏦 Cross-Bank Collaborative Defense Simulator</h4>
+                <p style="margin: 4px 0 0; font-size: 0.78rem; color: #94a3b8;">Demonstrating FalkorDB Multi-Tenant Isolation: Bank A discovers a syndicate, shares zero-PII graph topology, and protects Bank B in real time.</p>
+              </div>
+              <button id="btnSimulateFederatedDefense" class="btn" style="background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; padding: 8px 16px; font-size: 0.82rem; font-weight: 700;">
+                Simulate Cross-Bank Defense
+              </button>
+            </div>
+            <div id="federatedSimLog" style="font-family: var(--font-mono); font-size: 0.78rem; background: #0f172a; padding: 12px; border-radius: 6px; border: 1px solid #334155; min-height: 48px; color: #cbd5e1;">
+              Ready. Click 'Simulate Cross-Bank Defense' to trigger cross-tenant pattern propagation.
+            </div>
+          </div>
+
           <div class="patterns-table-wrapper" id="federatedPatternsWrapper">
             <div class="empty-state">No federated signatures shared yet.</div>
           </div>
         </div>
       </section>
     </main>
+  </div>
+
+  <!-- Modal: Ingest Real-World Custom Case -->
+  <div class="modal-backdrop" id="customCaseModal" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(8px); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+    <div class="modal-card" style="background: #0f172a; border: 1px solid var(--accent-cyan); border-radius: 12px; width: 100%; max-width: 680px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); animation: fadeIn 0.25s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+        <div>
+          <h3 style="margin: 0; color: #38bdf8; font-size: 1.15rem;">📂 Ingest Real-World Case into FalkorDB</h3>
+          <p style="margin: 4px 0 0; font-size: 0.8rem; color: #94a3b8;">Load pre-configured crime topologies or paste your own custom transaction graph JSON.</p>
+        </div>
+        <button id="btnCloseCustomModal" style="background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer;">×</button>
+      </div>
+
+      <!-- Input Format Toggle: JSON vs CSV File Upload -->
+      <div style="display: flex; gap: 10px; margin-bottom: 14px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;">
+        <button id="tabModeJson" class="btn btn-secondary active" style="font-size: 0.78rem; padding: 6px 14px; background: rgba(14, 165, 233, 0.2); border-color: var(--accent-cyan); color: #38bdf8;">
+          { } Graph JSON
+        </button>
+        <button id="tabModeCsv" class="btn btn-secondary" style="font-size: 0.78rem; padding: 6px 14px;">
+          📄 Bank Ledger CSV Upload
+        </button>
+      </div>
+
+      <!-- Quick Template Presets (JSON Mode) -->
+      <div id="jsonPresetSection" style="margin-bottom: 16px;">
+        <span style="font-size: 0.74rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Quick Preset Templates:</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;">
+          <button class="btn btn-secondary preset-btn" data-preset="cartel" style="font-size: 0.76rem; padding: 6px 10px;">
+            🏦 Cartel Smurfing Network
+          </button>
+          <button class="btn btn-secondary preset-btn" data-preset="sybil" style="font-size: 0.76rem; padding: 6px 10px;">
+            💻 Botnet Sybil Ring
+          </button>
+          <button class="btn btn-secondary preset-btn" data-preset="circular" style="font-size: 0.76rem; padding: 6px 10px;">
+            🔄 Shell Co. Circular Cycle
+          </button>
+          <button class="btn btn-secondary preset-btn" data-preset="payroll" style="font-size: 0.76rem; padding: 6px 10px;">
+            🏢 Benign Corp Payroll
+          </button>
+        </div>
+      </div>
+
+      <!-- JSON Input Area -->
+      <div id="jsonInputSection" style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label style="font-size: 0.76rem; font-weight: 700; color: #cbd5e1;">Graph JSON Payload:</label>
+          <span style="font-size: 0.72rem; color: #64748b;">Must include seed_account, nodes, edges</span>
+        </div>
+        <textarea id="customCaseJson" rows="10" style="width: 100%; font-family: var(--font-mono); font-size: 0.78rem; background: #020617; border: 1px solid #334155; border-radius: 6px; color: #38bdf8; padding: 12px; resize: vertical; outline: none;"></textarea>
+      </div>
+
+      <!-- CSV File Upload Section (Initially Hidden) -->
+      <div id="csvUploadSection" style="display: none; margin-bottom: 16px;">
+        <div style="border: 2px dashed rgba(14, 165, 233, 0.4); border-radius: 8px; padding: 24px; text-align: center; background: rgba(15, 23, 42, 0.6); transition: all 0.2s ease;" id="csvDropZone">
+          <div style="font-size: 2rem; margin-bottom: 8px;">📊</div>
+          <p style="font-size: 0.86rem; color: #e2e8f0; font-weight: 600; margin-bottom: 4px;">Drag & Drop Real Bank CSV here, or click to browse</p>
+          <p style="font-size: 0.74rem; color: #94a3b8; margin-bottom: 14px;">Compatible with standard AML CSV exports (columns: <code>sender, receiver, amount, bank, device_id</code>)</p>
+          <input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
+          <button type="button" id="btnSelectCsv" class="btn btn-secondary" style="margin: 0 auto; font-size: 0.8rem; padding: 7px 16px;">
+            Choose CSV File
+          </button>
+          <div id="csvSelectedFileInfo" style="margin-top: 10px; font-size: 0.8rem; color: #38bdf8; font-weight: 600; display: none;"></div>
+        </div>
+
+        <!-- Sample CSV Download Template -->
+        <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: #94a3b8;">
+          <span>Need a sample real-world CSV?</span>
+          <button type="button" id="btnLoadSampleCsv" style="background: none; border: none; color: #38bdf8; text-decoration: underline; cursor: pointer; font-size: 0.74rem;">
+            Load Sample Real Banking Fraud CSV
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button id="btnCancelCustomModal" class="btn btn-secondary" style="padding: 9px 18px;">Cancel</button>
+        <button id="btnSubmitCustomCase" class="btn btn-primary" style="padding: 9px 22px; font-weight: 700;">
+          🚀 Ingest & Dispatch Investigator
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-time Action Notification & Spinner Banner -->
+  <div id="actionStatusBanner" class="action-status-banner hidden">
+    <div class="action-status-spinner"></div>
+    <div class="action-status-text" id="actionStatusText">Processing request...</div>
   </div>
 
   <script src="/static/app.js"></script>

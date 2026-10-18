@@ -44,3 +44,9 @@ class ActorAgent:
             "rationale": rationale,
             "executed": executed,
         }
+
+    def evaluate_policy(self, verdict: str, confidence: float, case_id: str = "CASE_BENCH") -> str:
+        """Direct policy evaluation helper returning policy action string."""
+        decision = {"verdict": verdict, "confidence": confidence, "case_id": case_id}
+        res = self.execute_policy(decision)
+        return res["action"]

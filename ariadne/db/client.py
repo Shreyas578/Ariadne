@@ -36,10 +36,11 @@ class FalkorClient:
             self.driver = FalkorDB(
                 host=settings.FALKORDB_HOST,
                 port=settings.FALKORDB_PORT,
+                username=settings.FALKORDB_USER,
                 password=settings.FALKORDB_PASSWORD if settings.FALKORDB_PASSWORD else None,
                 ssl=settings.FALKORDB_SSL,
-                socket_timeout=1.0,
-                socket_connect_timeout=1.0,
+                socket_timeout=5.0,
+                socket_connect_timeout=5.0,
             )
             # Test ping
             self.driver.select_graph(settings.DEFAULT_TENANT_ID).query("RETURN 1")

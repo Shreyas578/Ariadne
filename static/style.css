@@ -252,6 +252,77 @@ body {
   transform: translateY(-1px);
 }
 
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn.loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.85;
+  filter: saturate(1.2);
+}
+
+.btn.loading .btn-icon {
+  animation: spin 0.8s linear infinite !important;
+  display: inline-block;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.btn.btn-pulse-glow {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.6) !important;
+  border-color: #22d3ee !important;
+}
+
+/* Global Floating Action Notification Banner */
+.action-status-banner {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--accent-cyan);
+  border-radius: 8px;
+  padding: 12px 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(6, 182, 212, 0.3);
+  backdrop-filter: blur(12px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 420px;
+}
+
+.action-status-banner.hidden {
+  display: none !important;
+}
+
+.action-status-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(6, 182, 212, 0.2);
+  border-top-color: var(--accent-cyan);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.action-status-text {
+  font-size: 0.84rem;
+  color: #f1f5f9;
+  font-weight: 500;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 .agent-model-select {
   margin-top: 14px;
   display: flex;
@@ -406,7 +477,6 @@ body {
   display: block;
 }
 
-/* Graph Canvas */
 .graph-container-wrapper {
   position: relative;
   height: 600px;
@@ -414,6 +484,21 @@ body {
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Fullscreen expanded state */
+.graph-container-wrapper.fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  z-index: 9999 !important;
+  background: #090d16 !important;
 }
 
 .graph-canvas {
@@ -485,7 +570,7 @@ body {
 
 .verdict-meta {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px;
   margin-bottom: 20px;
 }
@@ -494,29 +579,61 @@ body {
   background: var(--bg-tertiary);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-sm);
-  padding: 12px;
+  padding: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .meta-label {
   font-size: 0.72rem;
   color: var(--text-dim);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
 
 .meta-val {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Motif tag pills inside meta box */
+.motif-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-top: 4px;
+}
+
+.motif-pill {
+  display: inline-block;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
 }
 
 .summary-box {
   background: rgba(6, 182, 212, 0.05);
-  border: 1px solid rgba(6, 182, 212, 0.2);
+  border: 1px solid rgba(6, 182, 212, 0.25);
   border-radius: var(--radius-sm);
-  padding: 16px;
+  padding: 16px 20px;
   margin-bottom: 20px;
-  line-height: 1.6;
+  line-height: 1.65;
   font-size: 0.9rem;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  color: #e2e8f0;
 }
 
 .guard-pill {
@@ -848,6 +965,96 @@ body {
   letter-spacing: 0.4px;
 }
 
+/* ==============================================================================
+   Character Dynamic Facial Emotion Expressions
+   (Anger / Accusation, Confusion / Skepticism, Triumph / Certainty, Alarm / Warning)
+   ============================================================================== */
+.detective-character .emotion-indicator {
+  position: absolute;
+  top: -8px;
+  right: 12px;
+  font-size: 1.25rem;
+  opacity: 0;
+  transform: scale(0.5) translateY(5px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8));
+  z-index: 30;
+  pointer-events: none;
+}
+
+.detective-character.emotion-anger .emotion-indicator,
+.detective-character.emotion-confusion .emotion-indicator,
+.detective-character.emotion-triumph .emotion-indicator,
+.detective-character.emotion-alarm .emotion-indicator {
+  opacity: 1;
+  transform: scale(1.2) translateY(0);
+}
+
+/* 1. Anger / Aggressive Accusation (Red Aura, Fierce Shake) */
+.detective-character.emotion-anger .char-figure {
+  filter: drop-shadow(0 0 24px rgba(239, 68, 68, 0.95)) drop-shadow(0 14px 20px rgba(0,0,0,0.9)) !important;
+  animation: angryQuiver 0.18s infinite alternate !important;
+}
+.detective-character.emotion-anger .char-bubble {
+  border-color: #ef4444 !important;
+  background: rgba(69, 10, 10, 0.98) !important;
+  color: #fee2e2 !important;
+  box-shadow: 0 0 22px rgba(239, 68, 68, 0.7) !important;
+}
+@keyframes angryQuiver {
+  0% { transform: translateY(-22px) rotate(-4deg) scale(1.22); }
+  100% { transform: translateY(-26px) rotate(4deg) scale(1.26); }
+}
+
+/* 2. Confusion / Skepticism / Puzzled (Amber Tilted Sway) */
+.detective-character.emotion-confusion .char-figure {
+  filter: drop-shadow(0 0 22px rgba(245, 158, 11, 0.9)) drop-shadow(0 14px 20px rgba(0,0,0,0.9)) !important;
+  animation: confusedTilt 1.2s ease-in-out infinite alternate !important;
+}
+.detective-character.emotion-confusion .char-bubble {
+  border-color: #f59e0b !important;
+  background: rgba(69, 39, 10, 0.98) !important;
+  color: #fef3c7 !important;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.6) !important;
+}
+@keyframes confusedTilt {
+  0% { transform: translateY(-18px) rotate(-8deg) scale(1.18); }
+  100% { transform: translateY(-14px) rotate(8deg) scale(1.20); }
+}
+
+/* 3. Triumph / Solved Ring / Proud (Cyan/Emerald Radiant Bounce) */
+.detective-character.emotion-triumph .char-figure {
+  filter: drop-shadow(0 0 26px rgba(16, 185, 129, 0.95)) drop-shadow(0 14px 20px rgba(0,0,0,0.9)) !important;
+  animation: triumphJump 0.6s ease-in-out infinite alternate !important;
+}
+.detective-character.emotion-triumph .char-bubble {
+  border-color: #10b981 !important;
+  background: rgba(6, 78, 59, 0.98) !important;
+  color: #d1fae5 !important;
+  box-shadow: 0 0 22px rgba(16, 185, 129, 0.7) !important;
+}
+@keyframes triumphJump {
+  0% { transform: translateY(-16px) scale(1.20); }
+  100% { transform: translateY(-28px) scale(1.26); }
+}
+
+/* 4. Alarm / High Risk Warning (Purple/Rose Pulsing Flash) */
+.detective-character.emotion-alarm .char-figure {
+  filter: drop-shadow(0 0 26px rgba(217, 70, 239, 0.95)) drop-shadow(0 14px 20px rgba(0,0,0,0.9)) !important;
+  animation: alarmPulse 0.35s ease-in-out infinite alternate !important;
+}
+.detective-character.emotion-alarm .char-bubble {
+  border-color: #d946ef !important;
+  background: rgba(74, 4, 78, 0.98) !important;
+  color: #fae8ff !important;
+  box-shadow: 0 0 22px rgba(217, 70, 239, 0.7) !important;
+}
+@keyframes alarmPulse {
+  0% { transform: translateY(-18px) scale(1.18); }
+  100% { transform: translateY(-24px) scale(1.24); }
+}
+
+
 /* Committee Deliberation Card */
 .debate-log-card {
   background: var(--card-bg);
@@ -883,4 +1090,41 @@ body {
   font-family: var(--font-mono);
   color: #fff;
   margin-right: 6px;
+}
+
+/* Modal Ingest Dialog */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 99999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-backdrop.active,
+.modal-backdrop[style*="display: flex"] {
+  display: flex !important;
+}
+
+.modal-card {
+  background: #0f172a;
+  border: 1px solid var(--accent-cyan);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 680px;
+  padding: 24px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 25px rgba(6, 182, 212, 0.2);
+  animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes modalScaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }

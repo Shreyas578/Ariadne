@@ -60,3 +60,18 @@ temp/
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Heavy Raw Datasets (Do NOT push to Git)
+AMLSim-master/
+elliptic_bitcoin_dataset/
+*.csv
+*.tar.gz
+*.zip
+
+# Local scratch test scripts
+test_cloud_conn.py
+test_cloud_direct.py
+test_matrix.py
+verify_live_pipeline.py
+run_quality_analysis.py
+run_benchmarks.py

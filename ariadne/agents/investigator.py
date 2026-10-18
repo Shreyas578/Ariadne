@@ -49,9 +49,8 @@ class InvestigatorAgent:
         now_ts = time.time()
         cypher = """
         MATCH (ag:Agent {role: 'triage'})-[r:TRAIL {type: 'FLAGGED'}]->(a:Account)
-        WHERE NOT EXISTS {
-            MATCH (:Agent {role: 'investigator'})-[c:TRAIL {type: 'CLAIMED'}]->(a)
-        }
+        OPTIONAL MATCH (:Agent {role: 'investigator'})-[c:TRAIL {type: 'CLAIMED'}]->(a)
+        WHERE c IS NULL
         WITH a, r, ($now_ts - r.last_reinforced) AS dt, $lambda AS lambda
         WITH a, (r.weight * exp(-lambda * dt)) AS effective_weight
         WHERE effective_weight >= $min_weight

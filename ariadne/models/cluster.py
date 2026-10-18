@@ -16,15 +16,17 @@ class LLMCluster:
         self.groq_api_key = settings.GROQ_API_KEY
         self.nim_api_key = settings.NVIDIA_NIM_API_KEY
         self.hf_token = settings.HF_TOKEN
+        self._groq_failed = False
+        self._nim_failed = False
 
     async def call_groq(
         self,
         messages: List[Dict[str, str]],
-        model: str = "llama-3.3-70b-versatile",
+        model: str = "openai/gpt-oss-120b",
         temperature: float = 0.1,
     ) -> Optional[str]:
         """Query Groq Cloud API."""
-        if not self.groq_api_key:
+        if not self.groq_api_key or self._groq_failed:
             return None
         url = "https://api.groq.com/openai/v1/chat/completions"
         headers = {
@@ -38,26 +40,28 @@ class LLMCluster:
             "max_tokens": 1024,
         }
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            async with httpx.AsyncClient(timeout=3.0) as client:
                 res = await client.post(url, headers=headers, json=payload)
                 if res.status_code == 200:
                     data = res.json()
                     return data["choices"][0]["message"]["content"]
                 else:
-                    logger.warning(f"Groq API error ({res.status_code}): {res.text}")
+                    self._groq_failed = True  # Circuit break on model deprecation/404
+                    logger.debug(f"Groq API circuit broken ({res.status_code}): {res.text}")
                     return None
         except Exception as e:
-            logger.error(f"Groq API exception: {e}")
+            self._groq_failed = True
+            logger.debug(f"Groq API circuit broken: {e}")
             return None
 
     async def call_nvidia_nim(
         self,
         messages: List[Dict[str, str]],
-        model: str = "meta/llama-3.3-70b-instruct",
+        model: str = "meta/llama-3.2-90b-vision-instruct",
         temperature: float = 0.1,
     ) -> Optional[str]:
         """Query NVIDIA NIM API."""
-        if not self.nim_api_key:
+        if not self.nim_api_key or self._nim_failed:
             return None
         url = "https://integrate.api.nvidia.com/v1/chat/completions"
         headers = {
@@ -71,16 +75,18 @@ class LLMCluster:
             "max_tokens": 1024,
         }
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            async with httpx.AsyncClient(timeout=3.0) as client:
                 res = await client.post(url, headers=headers, json=payload)
                 if res.status_code == 200:
                     data = res.json()
                     return data["choices"][0]["message"]["content"]
                 else:
-                    logger.warning(f"NVIDIA NIM error ({res.status_code}): {res.text}")
+                    self._nim_failed = True  # Circuit break on 410 Gone
+                    logger.debug(f"NVIDIA NIM circuit broken ({res.status_code}): {res.text}")
                     return None
         except Exception as e:
-            logger.error(f"NVIDIA NIM exception: {e}")
+            self._nim_failed = True
+            logger.debug(f"NVIDIA NIM circuit broken: {e}")
             return None
 
     async def run_detective_cluster_debate(

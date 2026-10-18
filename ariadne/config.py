@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     # FalkorDB Connection (Cloud or local)
     FALKORDB_HOST: str = "localhost"
     FALKORDB_PORT: int = 6379
+    FALKORDB_USER: Optional[str] = "falkordb"
     FALKORDB_PASSWORD: Optional[str] = None
     FALKORDB_SSL: bool = False
 
