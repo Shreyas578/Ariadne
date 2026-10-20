@@ -641,20 +641,31 @@ async def get_graph_subgraph(account_id: Optional[str] = None):
     edges = []
 
     try:
-        # Accounts
-        acc_res = graph.query("MATCH (a:Account) RETURN a.id, a.bank, a.balance LIMIT 60")
+        # Accounts - prioritize injected syndicates and high-velocity trail targets
+        acc_res = graph.query("""
+        MATCH (a:Account)
+        OPTIONAL MATCH (ag:Agent)-[t:TRAIL]->(a)
+        RETURN a.id, a.bank, a.balance, CASE WHEN a.injected = true THEN 2 WHEN t IS NOT NULL THEN 1 ELSE 0 END AS priority
+        ORDER BY priority DESC, a.id DESC
+        LIMIT 100
+        """)
         if acc_res.result_set:
             for row in acc_res.result_set:
                 nodes.append({"id": row[0], "label": "Account", "bank": row[1], "balance": row[2]})
 
         # Devices
-        dev_res = graph.query("MATCH (d:Device) RETURN d.id LIMIT 20")
+        dev_res = graph.query("MATCH (d:Device) RETURN d.id LIMIT 30")
         if dev_res.result_set:
             for row in dev_res.result_set:
                 nodes.append({"id": row[0], "label": "Device"})
 
-        # Transfers
-        tx_res = graph.query("MATCH (s:Account)-[r:TRANSFERRED]->(d:Account) RETURN s.id, d.id, r.amount LIMIT 150")
+        # Transfers - return all transfers connecting active nodes
+        tx_res = graph.query("""
+        MATCH (s:Account)-[r:TRANSFERRED]->(d:Account)
+        RETURN s.id, d.id, r.amount
+        ORDER BY r.ts DESC
+        LIMIT 250
+        """)
         if tx_res.result_set:
             for row in tx_res.result_set:
                 edges.append({"source": row[0], "target": row[1], "type": "TRANSFERRED", "amount": row[2]})
